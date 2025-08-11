@@ -1,0 +1,884 @@
+CREATE DATABASE biblioteca;
+
+USE biblioteca;
+
+CREATE TABLE libros (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    titulo VARCHAR(100),
+    autor VARCHAR(100),
+    genero VARCHAR(50),
+    anio_publicacion INT,
+    disponible BOOLEAN
+);
+
+CREATE TABLE usuarios (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    nombre VARCHAR(100),
+    email VARCHAR(100),
+    ciudad VARCHAR(50),
+    fecha_registro DATE
+);
+
+INSERT INTO libros (titulo, autor, genero, anio_publicacion, disponible) VALUES
+('La sombra del viento', 'Carlos Ruiz Zafón', 'Ficción', 2001, TRUE),
+('Cien años de soledad', 'Gabriel García Márquez', 'Realismo mágico', 1967, TRUE),
+('Harry Potter y la piedra filosofal', 'J.K. Rowling', 'Fantasía', 1997, TRUE),
+('El nombre del viento', 'Patrick Rothfuss', 'Fantasía', 2007, FALSE),
+('Sapiens', 'Yuval Noah Harari', 'Historia', 2011, TRUE),
+('El alquimista', 'Paulo Coelho', 'Ficción', 1988, FALSE),
+('Ready Player One', 'Ernest Cline', 'Ciencia Ficción', 2011, TRUE),
+('1984', 'George Orwell', 'Distopía', 1949, TRUE),
+('El código Da Vinci', 'Dan Brown', 'Misterio', 2003, FALSE),
+('La chica del tren', NULL, 'Thriller', 2015, TRUE);
+
+INSERT INTO libros (titulo, autor, genero, anio_publicacion, disponible) VALUES
+('Los pilares de la Tierra', 'Ken Follett', 'Histórica', 1989, TRUE),
+('El psicoanalista', 'John Katzenbach', 'Thriller', 2002, TRUE),
+('Crónica de una muerte anunciada', 'Gabriel García Márquez', 'Ficción', 1981, TRUE),
+('Orgullo y prejuicio', 'Jane Austen', 'Romance', 1813, FALSE),
+('La ladrona de libros', 'Markus Zusak', 'Drama', 2005, TRUE),
+('It', 'Stephen King', 'Terror', 1986, FALSE),
+('La carretera', 'Cormac McCarthy', 'Distopía', 2006, TRUE),
+('El señor de los anillos', 'J.R.R. Tolkien', 'Fantasía', 1954, TRUE),
+('Un mundo feliz', 'Aldous Huxley', 'Distopía', 1932, TRUE),
+('La metamorfosis', 'Franz Kafka', 'Ficción', 1915, TRUE);
+
+
+INSERT INTO usuarios (nombre, email, ciudad, fecha_registro) VALUES
+('Juan Pérez', 'juanp@example.com', 'Medellín', '2023-05-10'),
+('Ana Gómez', 'ana.g@example.com', 'Bogotá', '2023-06-12'),
+('Carlos Díaz', 'cdiaz@example.com', 'Medellín', '2023-07-01'),
+('Laura Ruiz', 'laura.r@example.com', 'Cali', '2023-06-28'),
+('Sofía Torres', 'sofia.t@example.com', 'Barranquilla', '2023-07-15');
+
+INSERT INTO usuarios (nombre, email, ciudad, fecha_registro) VALUES
+('Marcos Vélez', 'marcos.v@example.com', 'Medellín', '2023-08-03'),
+('Isabela Ríos', 'isabela.r@example.com', 'Cali', '2023-08-01'),
+('Diego Fernández', 'diego.f@example.com', 'Bogotá', '2023-07-25'),
+('Camila Moreno', 'camila.m@example.com', 'Barranquilla', '2023-08-02'),
+('Luis Herrera', 'luis.h@example.com', 'Medellín', '2023-07-30');
+
+ALTER TABLE usuarios ADD COLUMN password VARCHAR(255);
+UPDATE usuarios
+SET password = '1234'
+WHERE id = 1;
+
+
+
+CREATE TABLE prestamos (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    id_libro INT,
+    id_usuario INT,
+    fecha_prestamo DATE,
+    fecha_devolucion DATE,
+    FOREIGN KEY (id_libro) REFERENCES libros(id),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+);
+
+
+INSERT INTO prestamos (id_libro, id_usuario, fecha_prestamo, fecha_devolucion) VALUES
+(1, 1, '2023-07-01', '2023-07-15'),
+(2, 2, '2023-07-05', NULL),
+(3, 3, '2023-07-10', NULL),
+(4, 1, '2023-07-12', '2023-07-20'),
+(5, 4, '2023-07-15', NULL);
+
+INSERT INTO prestamos (id_libro, id_usuario, fecha_prestamo, fecha_devolucion) VALUES
+(6, 5, '2023-07-18', '2023-07-25'),
+(7, 6, '2023-07-20', NULL),
+(8, 7, '2023-07-22', '2023-08-01'),
+(9, 8, '2023-07-25', NULL),
+(10, 9, '2023-07-28', NULL),
+(1, 10, '2023-07-30', '2023-08-10'),
+(2, 2, '2023-08-01', NULL),
+(3, 3, '2023-08-03', NULL),
+(4, 6, '2023-08-04', NULL),
+(5, 7, '2023-08-05', NULL);
+
+
+/*
+ Capítulo 1 — Consultas Básicas
+🔸 Ejercicio 1: Consultas simples
+
+1.1 Mostrar todos los libros disponibles.
+1.2 Mostrar todos los usuarios registrados en la ciudad de 'Medellín'.
+1.3 Mostrar los títulos y autores de todos los libros publicados después del año 2015.
+
+🔸 Ejercicio 2: Uso de operadores
+2.1 Mostrar los libros publicados entre 2000 y 2010.
+2.2 Mostrar los libros cuyo género sea ‘Fantasía’ o ‘Ciencia Ficción’.
+2.3 Mostrar los libros cuyo título contenga la palabra ‘sombra’.
+
+🔸 Ejercicio 3:
+3.1 🔜 Mostrar los libros que no tienen autor asignado (autor es NULL)
+3.2 🔜 Mostrar los usuarios ordenados por fecha de registro (del más reciente al más antiguo)
+3.3 🔜 Mostrar los libros ordenados alfabéticamente por título
+
+4.1. Mostrar los títulos y años de los libros que no sean del género 'Romance' y que hayan sido publicados después del 2010.
+4.2. Mostrar los usuarios cuyo nombre empiece con la letra ‘A’ o que se hayan registrado en el año 2022.
+(Tip: usar LIKE 'A%' y YEAR(fecha_registro) = 2022 si aplica)
+
+5.1. Mostrar todos los libros cuyo autor no esté definido (NULL) o cuyo año de publicación sea menor a 1990.
+5.2. Mostrar los usuarios de Medellín registrados después de 2021, ordenados por fecha de registro descendente.
+
+🔹 Ejercicio 6: Filtrado por rangos
+6.1. Mostrar los libros publicados entre 1995 y 2005, excluyendo los del género ‘Terror’.
+6.2. Mostrar los usuarios cuyo id esté entre 10 y 20 y su ciudad no sea ‘Bogotá’.
+
+7.1. Mostrar todos los libros ordenados primero por género (alfabético) y luego por año de publicación (más reciente primero).
+7.2. Mostrar los usuarios ordenados por nombre descendente.
+
+🔹 Ejercicio 8: BONUS combinados
+8.1. Mostrar los títulos de libros que: Contengan la palabra ‘luz’
+-- Sean del género ‘Fantasía’
+-- No tengan autor definido
+
+9.1: Alias en columnas
+Mostrá una lista de los libros, pero:
+Mostrá solo el titulo, autor y anio_publicacion.
+Usá alias para que:
+titulo se muestre como "Nombre del Libro"
+autor como "Escrito por"
+anio_publicacion como "Publicado en"
+
+
+9.2 : Alias en tabla
+Usá un alias para la tabla libros (por ejemplo l) y traé:
+Los títulos (l.titulo)
+Los géneros (l.genero)
+Donde el género sea Ciencia Ficción
+
+INNER JOIN:
+
+10.1 Listá los títulos de los libros y los nombres de los usuarios que los prestaron.
+10.2 Mostrá el nombre del usuario, el título del libro y la fecha de préstamo.
+10.3 Mostrá todos los títulos de libros prestados junto con la ciudad del usuario que los tomó prestados.
+10.4 Mostrá los nombres de los usuarios y los títulos de libros que hayan sido prestados después del 1 de enero de 2024.
+10.5 Listá los títulos de los libros junto con los nombres de los usuarios, pero solo aquellos préstamos que tengan un ID mayor a 3.
+10.6 Mostrá los títulos de libros y los nombres de usuarios, pero ordenados por la fecha del préstamo de forma descendente.
+10.7 Mostrá el nombre del usuario, el título del libro y la fecha de préstamo, pero solo para préstamos realizados
+entre el 1 de enero y el 30 de junio de 2024, y que correspondan a libros cuyo título contenga la palabra "Historia".
+10.8 Listá los títulos de los libros y los nombres de los usuarios, pero solo si el nombre del usuario 
+empieza con la letra "M", y el ID del libro es par. Ordená los resultados alfabéticamente por nombre de usuario.
+
+LEFT JOIN
+
+11.1 Listá todos los usuarios junto con los títulos de los libros que hayan prestado, si es que prestaron alguno.
+👉 Si no hicieron préstamos, que igual aparezcan en el resultado con NULL en el título del libro.
+11.2 Mostrá los nombres de los usuarios que aún no hicieron ningún préstamo.
+11.3 Mostrar todos los libros con el nombre del usuario que los tiene prestados. Si el libro no ha sido prestado, mostrar NULL.
+11.4 Mostrá los títulos de los libros que nunca han sido prestados.
+11.5 Mostrá los nombres de los usuarios que han hecho al menos un préstamo.
+11.6 Mostrá todos los títulos de los libros que fueron prestados, junto con el nombre del usuario que lo solicitó.
+
+RIGHT JOIN
+12.1 Listá todos los préstamos (con su fecha), junto con los nombres de los libros prestados.
+12.2 Mostrá todos los préstamos, aunque algún libro ya no esté listado (simulando que un libro pudo ser borrado de la tabla libros).
+12.3 Mostrá todos los préstamos realizados, incluyendo usuarios aunque ya no estén registrados en la tabla usuarios.
+12.4 Listá todas las combinaciones de usuarios y préstamos, incluso si no hubo préstamo.
+Invertí la lógica de LEFT JOIN de antes.
+12.5 Mostrá los nombres de todos los libros y sus préstamos (si existen), incluyendo libros que no fueron prestados.
+12.6 Mostrá los libros no prestados usando RIGHT JOIN y WHERE p.id IS NULL.
+
+ AGREGACION BASICA
+ 
+COUNT()
+13.1 Mostrar cuántos libros hay en total en la tabla libros.
+13.2 Mostrar cuántos libros tienen autor definido (no NULL).
+13.3 Mostrar la cantidad total de usuarios registrados.	
+
+AVG()
+14.1 Mostrar el promedio de año de publicación de todos los libros.
+14.2 Mostrar el promedio de año de publicación solo para los libros del género "Fantasía".
+14.3 Mostrar el promedio de año de publicación de libros con autor definido y publicados después del año 2000.
+
+➕ SUM() – Suma (sin GROUP BY)
+15.1 Mostrar la suma total de años de publicación de todos los libros.
+15.2 Mostrar la suma total de años de publicación solo para libros que tienen autor asignado.
+15.3 Mostrar la suma total de años de publicación de libros del género "Ciencia ficción" publicados entre 1990 y 2020.
+
+🔼 MAX() – Máximo (sin GROUP BY)
+16.1 Mostrar el año más reciente de publicación entre todos los libros.
+16.2 Mostrar el año más reciente de publicación para libros del género "Ficción".
+16.3 Mostrar el año más reciente de publicación entre los libros que no tienen autor definido y que fueron publicados después del 2000.
+
+🔽 MIN() – Mínimo (sin GROUP BY)
+17.1 Mostrar el año más antiguo de publicación entre todos los libros.
+17.2 Mostrar el año más antiguo de publicación para libros con autor definido.
+17.3 Mostrar el año más antiguo de publicación para libros de género "Historia" y autor contenga con 'a'.
+
+ Ejercicios con GROUP BY + joins y filtros:
+18 Mostrar cuántos libros hay por cada género.
+18.1 Mostrar el promedio de año de publicación por cada género, solo para libros con autor definido.
+18.2 Mostrar cuántos usuarios hay registrados por ciudad.
+18.3 Mostrar cuántos préstamos hizo cada usuario. (solo los que tienen préstamos)
+(Usá INNER JOIN entre usuarios y prestamos)
+18.4 Mostrar cuántos libros hay disponibles y no disponibles por género.
+18.5 Mostrar el año más reciente de publicación por cada género, sin filtrar nada. Solo queremos ver el año máximo por cada género.
+18.6 Mostrar el número de libros prestados por título de libro.
+(JOIN entre libros y prestamos)
+18.7 Mostrar cuántos préstamos tuvo cada usuario, incluyendo aquellos que no hicieron ninguno.
+(Usá LEFT JOIN entre usuarios y prestamos)
+18.8 Mostrar la cantidad de préstamos realizados por mes (usá MONTH(fecha_prestamo))
+(Agrupá por mes de la fecha de préstamo)
+18.9 Mostrar por ciudad de usuario cuántos préstamos se hicieron, aunque sea cero préstamos. Ordená por cantidad descendente.
+
+HAVING:
+19. Mostrar por cada ciudad cuántos usuarios hay, pero solo aquellas ciudades donde hay más de 3 usuarios registrados.
+19.1 Mostrar por cada género la cantidad de libros disponibles, pero solo géneros con al menos 4 libros disponibles.
+19.2 Mostrar los usuarios que hicieron más de 2 préstamos. Mostrá su nombre y la cantidad de préstamos.
+19.3 Mostrar los títulos de libros que fueron prestados más de una vez.
+19.4 Mostrar por cada ciudad de usuario el total de préstamos hechos, pero solo incluir ciudades con más de 10 préstamos.
+19.5 Mostrar el promedio de año de publicación por género, pero solo géneros donde el promedio sea mayor a 2010.
+19.6 Mostrar por cada usuario el total de préstamos realizados, pero solo aquellos cuyo nombre empieza con 'J' y hayan hecho más de 1 préstamo.
+19.7 Mostrar por cada género cuántos libros tienen autor definido, pero solo incluir géneros con más de 3 libros con autor.
+19.8 Mostrar por cada mes (usando MONTHNAME) cuántos préstamos se realizaron, pero solo los meses donde se hicieron más de 5 préstamos.
+19.9 Mostrar cuántos libros hay por cada combinación de género y disponibilidad, pero solo aquellas combinaciones donde hay más de 2 libros.
+
+SUBCONSULTAS
+20 Mostrar el título del libro más reciente (mayor anio_publicacion).
+20.1 📅 (IN - lista de valores) Listar los títulos de los libros que han sido prestados al usuario con email ana.g@example.com.
+20.2 👤 (Escalar con GROUP BY) Mostrar el nombre del usuario que ha hecho más préstamos en total.
+20.3 📚 (Subconsulta en FROM) Mostrar el nombre y cantidad de préstamos de cada usuario que ha hecho más de un préstamo.
+20.4 📭 (Subconsulta con NULL - libros sin préstamo)Listar los títulos de los libros que nunca han sido prestados.
+20.5  🔁 (Correlacionada con EXISTS) Listar los nombres de los usuarios que tienen al menos un préstamo activo (sin fecha_devolucion).
+20.6 🕰 (Subconsulta con fecha - últimos préstamos)Listar los libros prestados en la fecha más reciente registrada.
+20.7 📊 (Subconsulta en SELECT – Conteo por libro) Listar todos los títulos de los libros junto con la cantidad de veces que han sido prestados.
+Usar una subconsulta en el SELECT para obtener el conteo.
+20.8 📈 (ANY / ALL – Comparación con todos) Listar los títulos de los libros cuyo año de publicación sea mayor que todos los libros del género "Ciencia Ficción".
+20.9 🚫 (Correlacionada con NOT EXISTS – Usuarios sin préstamos) Listar los nombres y correos de los usuarios que nunca han hecho un préstamo.
+
+VISTAS
+20.1 Vista básica – libros disponibles. Crea una vista que muestre únicamente los libros que están marcados como disponibles.
+20.2 Vista con JOIN – préstamos con datos de usuario y libro
+Crea una vista que muestre: nombre del usuario, título del libro, fecha de préstamo y fecha de devolución.
+20.4 Vista con agregación – usuarios con cantidad de préstamos. Crea una vista que muestre cada usuario y cuántos préstamos ha realizado.
+20.5 Vista filtrada – préstamos de una ciudad y año específico. Crea una vista que muestre todos los préstamos de usuarios de Medellín y libros publicados en 2020.
+
+CONTROL DE ACCESO Y PERMISO:
+21.1 Usuario lector de libros. Crear un usuario lector1 que solo pueda leer la tabla libros. Verificar que no pueda leer usuarios.
+21.2 Usuario bibliotecario. Crear un usuario bibliotecario con permisos para insertar en usuarios y consultar cualquier tabla. Verificar que pueda insertar y consultar, pero no actualizar.
+21.3 Revocar permisos de inserción. Quitar al usuario bibliotecario el permiso de insertar en usuarios. Verificar que siga pudiendo consultar.
+21.4 Usuario gestor de préstamos. Crear un usuario gestor_prestamos con permisos para insertar y actualizar en prestamos, y solo consultar en usuarios y libros.
+21.5 Eliminar usuario. Borrar el usuario lector1 de la base de datos. Verificar que no pueda conectarse.
+
+FUNCIONES VENTANA
+22.1 Contar préstamos por usuario sin agrupar filas
+Muestra el nombre del usuario, la fecha de cada préstamo y cuántos préstamos tiene en total ese usuario. Pistas: COUNT() OVER (PARTITION BY ...)
+22.2 Ranking de libros más prestados en general Lista el id y título de cada libro junto a la cantidad de préstamos y su posición en el ranking global (1 = más prestado).
+Si hay empates, el ranking debe saltar números.
+22.3 Ranking de libros más prestados por cada usuario
+Muestra id_usuario, id_libro, cantidad de préstamos de ese libro por ese usuario y su ranking dentro de cada usuario (1 = libro que más pidió).
+22.4 Fecha del préstamo anterior por usuario. Para cada préstamo, muestra también la fecha de su préstamo anterior de ese mismo usuario (o NULL si no tiene).
+22.5 Acumulado de préstamos por usuario. Para cada usuario, lista la fecha de cada préstamo y cuántos préstamos llevaba hasta ese momento (contando el actual).
+Pistas: COUNT(*) OVER (PARTITION BY id_usuario ORDER BY fecha_prestamo)
+*/
+
+-- 1.1 Mostrar todos los libros disponibles.
+SELECT titulo FROM libros;
+
+-- o SELECT * FROM libros;
+
+-- 1.2 Mostrar todos los usuarios registrados en la ciudad de 'Medellín'.
+SELECT nombre FROM usuarios WHERE ciudad = 'Medellín';
+
+-- 1.3 Mostrar los títulos y autores de todos los libros publicados después del año 2015.
+SELECT titulo, autor FROM libros WHERE anio_publicacion > 2015;
+
+-- 2.1 Mostrar los libros publicados entre 2000 y 2010.
+SELECT titulo, anio_publicacion FROM libros WHERE anio_publicacion >= 2000 AND anio_publicacion <= 2010;
+
+-- 2.2 Mostrar los libros cuyo género sea ‘Fantasía’ o ‘Ciencia Ficción’.
+SELECT titulo, genero FROM libros WHERE genero IN ('Fantasía', 'Ciencia Ficción');
+-- tambien: SELECT titulo, genero FROM libros WHERE genero = 'Fantasía' OR genero = 'Ciencia Ficción';
+
+-- 2.3 Mostrar los libros cuyo título contenga la palabra ‘sombra’.
+SELECT titulo, autor FROM libros WHERE titulo LIKE '%sombra%';
+
+-- 3.1 Mostrar los libros que no tienen autor asignado (autor es NULL)
+SELECT titulo, autor FROM libros WHERE autor IS NULL;
+
+-- 3.2 Mostrar los usuarios ordenados por fecha de registro (del más reciente al más antiguo)
+SELECT nombre, fecha_registro FROM usuarios ORDER BY fecha_registro DESC;
+
+-- 3.3 Mostrar los libros ordenados alfabéticamente por título
+SELECT titulo FROM libros ORDER BY titulo;
+
+-- 4.1 Mostrar los títulos y años de los libros que no sean del género 'Romance' y que hayan sido publicados después del 2010.
+SELECT titulo, anio_publicacion FROM libros WHERE genero != 'Romance' AND anio_publicacion > 2010;
+
+-- 4.2 Mostrar los usuarios cuyo nombre empiece con la letra ‘A’ o que se hayan registrado en el año 2022. 
+-- (Tip: usar LIKE 'A%' y YEAR(fecha_registro) = 2022 si aplica)
+SELECT nombre, fecha_registro FROM usuarios WHERE nombre LIKE 'A%' OR YEAR(fecha_registro) = 2022;
+
+-- 5.1 Mostrar todos los libros cuyo autor no esté definido (NULL) o cuyo año de publicación sea menor a 1990.
+SELECT titulo, autor FROM libros WHERE autor IS NULL OR anio_publicacion < 1990;
+
+-- 5.2 Mostrar los usuarios de Medellín registrados después de 2021, ordenados por fecha de registro descendente.
+SELECT nombre, fecha_registro FROM usuarios WHERE YEAR (fecha_registro) > 2021 ORDER BY fecha_registro DESC;
+
+-- 6.1 Mostrar los libros publicados entre 1995 y 2005, excluyendo los del género ‘Terror’.
+SELECT titulo, anio_publicacion FROM libros WHERE anio_publicacion BETWEEN 1995 AND 2005 AND genero != 'Terror';
+
+-- 6.2 Mostrar los usuarios cuyo id esté entre 10 y 20 y su ciudad no sea ‘Bogotá’.
+SELECT id, nombre, ciudad FROM usuarios WHERE id BETWEEN 10 AND 20 AND ciudad != 'Bogotá';
+
+-- 7.1 Mostrar todos los libros ordenados primero por género (alfabético) y luego por año de publicación (más reciente primero).
+SELECT * FROM libros ORDER BY genero, anio_publicacion  DESC;
+
+-- 7.2  Mostrar los usuarios ordenados por nombre descendente.
+SELECT * FROM usuarios ORDER BY nombre DESC;
+
+
+-- 8.1 Mostrar los títulos de libros que: Contengan la palabra ‘luz’
+-- Sean del género ‘Fantasía’
+-- No tengan autor definido
+SELECT * FROM libros WHERE titulo LIKE '%luz%' AND genero = 'Fantasía' AND autor IS NULL;
+
+-- 9.1  Alias en columnas
+-- Mostrá una lista de los libros, pero:
+-- Mostrá solo el titulo, autor y anio_publicacion.
+-- Usá alias para que:
+-- titulo se muestre como "Nombre del Libro"
+-- autor como "Escrito por"
+-- anio_publicacion como "Publicado en"
+SELECT titulo AS 'Nombre del libro', autor AS 'Escrito por', anio_publicacion AS 'Publicado en' FROM libros;
+
+/* 9.2 Alias en tabla
+Usá un alias para la tabla libros (por ejemplo l) y traé:
+Los títulos (l.titulo)
+Los géneros (l.genero)
+Donde el género sea Ciencia Ficción*/
+SELECT l.titulo, l.genero
+FROM libros AS l
+WHERE l.genero = 'Ciencia Ficción';
+
+-- 10.1 Listá los títulos de los libros y los nombres de los usuarios que los prestaron.
+SELECT l.titulo, u.nombre 
+FROM prestamos
+JOIN libros l ON prestamos.id_libro = l.id 
+JOIN usuarios u ON prestamos.id_usuario = u.id;
+
+-- 10.2 Mostrá el nombre del usuario, el título del libro y la fecha de préstamo.
+SELECT u.nombre, l.titulo, p.fecha_prestamo
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+JOIN libros l ON p.id_libro = l.id;
+
+-- 10.3 Mostrá todos los títulos de libros prestados junto con la ciudad del usuario que los tomó prestados.
+SELECT l.titulo, u.ciudad
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+JOIN usuarios u ON p.id_usuario = u.id;
+
+-- 10.4 Mostrá los nombres de los usuarios y los títulos de libros que hayan sido prestados después del 1 de enero de 2024.
+SELECT u.nombre, l.titulo, p.fecha_prestamo
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+JOIN libros l ON p.id_libro = l.id
+WHERE p.fecha_prestamo > '2024-1-1';
+
+-- 10.5 Listá los títulos de los libros junto con los nombres de los usuarios, pero solo aquellos préstamos que tengan un ID mayor a 3.
+SELECT l.titulo, u.nombre, p.id AS prestamo_id
+FROM prestamos p 
+JOIN libros l ON p.id_libro = l.id
+JOIN usuarios u ON p.id_usuario = u.id
+WHERE p.id > 3;
+
+-- 10.6 Mostrá los títulos de libros y los nombres de usuarios, pero ordenados por la fecha del préstamo de forma descendente.
+SELECT l.titulo, u.nombre, p.fecha_prestamo
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+JOIN usuarios u ON p.id_usuario = u.id
+ORDER BY p.fecha_prestamo DESC;
+
+-- 10.7  Mostrá el nombre del usuario, el título del libro y la fecha de préstamo, pero solo para préstamos realizados
+SELECT u.nombre, l.titulo, p.fecha_prestamo
+FROM prestamos p 
+JOIN usuarios u ON p.id_usuario = u.id
+JOIN libros l ON p.id_libro = l.id
+WHERE p.fecha_prestamo BETWEEN '2024-1-1' AND '2024-06-30' 
+	AND l.titulo LIKE '%Historia%';
+    
+/* 10.8 Listá los títulos de los libros y los nombres de los usuarios, pero solo si el nombre del usuario 
+empieza con la letra "M", y el ID del libro es par. Ordená los resultados alfabéticamente por nombre de usuario.*/
+SELECT l.titulo, u.nombre
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+JOIN usuarios u ON p.id_usuario = u.id
+WHERE u.nombre LIKE 'M%' AND (l.id % 2) = 0;
+
+-- 11.1 Listá todos los usuarios junto con los títulos de los libros que hayan prestado, si es que prestaron alguno.
+-- 👉 Si no hicieron préstamos, que igual aparezcan en el resultado con NULL en el título del libro.
+SELECT u.nombre, l.titulo
+FROM usuarios u 
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+LEFT JOIN libros l ON p.id_libro = l.id;
+
+-- 11.2 Mostrá los nombres de los usuarios que aún no hicieron ningún préstamo.
+SELECT u.nombre AS usuario_sin_préstamo
+FROM usuarios u
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+WHERE p.id_usuario IS NULL;
+
+-- 11.3 Mostrar todos los libros con el nombre del usuario que los tiene prestados. Si el libro no ha sido prestado, mostrar NULL.
+SELECT l.titulo, u.nombre
+FROM libros l 
+LEFT JOIN prestamos p ON l.id = p.id_libro
+LEFT JOIN usuarios u ON p.id_usuario = u.id;
+
+-- 11.4 Mostrá los títulos de los libros que nunca han sido prestados.
+SELECT l.titulo AS libros_no_prestados
+FROM libros l
+LEFT JOIN prestamos p ON l.id = p.id_libro
+WHERE p.id_libro IS NULL;
+
+-- 11.5 Mostrá los nombres de los usuarios que han hecho al menos un préstamo.
+SELECT u.nombre AS prestaron_al_menos_una_vez
+FROM usuarios u
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+WHERE p.id_usuario iS NOT NULL;
+
+-- 11.6 Mostrá todos los títulos de los libros que fueron prestados, junto con el nombre del usuario que lo solicitó.
+SELECT l.titulo, u.nombre
+FROM libros l 
+LEFT JOIN prestamos p ON l.id = p.id_libro
+LEFT JOIN usuarios u ON p.id_usuario = u.id
+WHERE p.id_usuario IS NOT NULL;
+
+-- 12.1 Listá todos los préstamos (con su fecha), junto con los nombres de los libros prestados.
+SELECT p.fecha_prestamo, l.titulo
+FROM prestamos p
+RIGHT JOIN libros l ON p.id_libro = l.id;
+
+-- 12.2 Mostrá todos los préstamos, aunque algún libro ya no esté listado (simulando que un libro pudo ser borrado de la tabla libros).
+SELECT p.id AS id_prestamo, l.titulo
+FROM libros l
+RIGHT JOIN prestamos p ON p.id_libro = l.id;
+
+-- 12.3 Mostrá todos los préstamos realizados, incluyendo usuarios aunque ya no estén registrados en la tabla usuarios.
+SELECT p.fecha_prestamo, u.nombre
+FROM prestamos p
+RIGHT JOIN usuarios u ON p.id_usuario = u.id;
+
+-- 12.4 Listá todas las combinaciones de usuarios y préstamos, incluso si no hubo préstamo.
+SELECT u.nombre, p.fecha_prestamo, p.id AS id_prestamo
+FROM prestamos p
+RIGHT JOIN usuarios u ON p.id_usuario = u.id;
+
+-- 12.5 Mostrá los nombres de todos los libros y sus préstamos (si existen), incluyendo libros que no fueron prestados.
+SELECT l.titulo, p.id AS id_prestamo, p.fecha_prestamo
+FROM prestamos p
+RIGHT JOIN libros l ON l.id = p.id_libro;
+
+-- 12.6 Mostrá los libros no prestados usando RIGHT JOIN y WHERE p.id IS NULL.
+SELECT l.titulo
+FROM prestamos p
+RIGHT JOIN libros l ON p.id_libro = l.id
+WHERE p.id IS NULL;
+
+-- 13.1 Mostrar cuántos libros hay en total en la tabla libros.
+SELECT COUNT(*) 
+FROM libros;
+
+-- 13.2 Mostrar cuántos libros tienen autor definido (no NULL).
+SELECT COUNT(*)
+FROM libros l
+WHERE l.autor IS NOT NULL;
+
+-- 13.3 Mostrar la cantidad total de usuarios registrados.	
+SELECT COUNT(*)
+FROM usuarios u;
+
+-- 14.1 Mostrar el promedio de año de publicación de todos los libros.
+SELECT AVG(anio_publicacion) AS promedio_anio_publicacion
+FROM libros;
+
+-- Se pudede usar ROUND() para redondear el numero puede ser con un solo parametro osea sin decimal, o especificando la cantidad de decimales por ej;
+-- SELECT ROUND(AVG(anio_publicacion), 1)
+
+-- 14.2 Mostrar el promedio de año de publicación solo para los libros del género "Fantasía".
+SELECT ROUND(AVG(anio_publicacion), 1) AS promedio_anio_publicacion, genero
+FROM libros
+WHERE genero = 'Fantasía';
+
+-- 14.3 Mostrar el promedio de año de publicación de libros con autor definido y publicados después del año 2000.
+SELECT ROUND(AVG(anio_publicacion), 1) AS promedio_anio_publicacion
+FROM libros
+WHERE autor IS NOT NULL 
+AND anio_publicacion > 2000;
+
+-- 15.1 Mostrar la suma total de años de publicación de todos los libros.
+SELECT SUM(anio_publicacion)
+FROM libros;
+
+-- 15.2 Mostrar la suma total de años de publicación solo para libros que tienen autor asignado.
+SELECT SUM(anio_publicacion)
+FROM libros
+WHERE autor IS NOT NULL;
+
+-- 15.3 Mostrar la suma total de años de publicación de libros del género "Ciencia ficción" publicados entre 1990 y 2020.
+SELECT SUM(anio_publicacion)
+FROM libros
+WHERE genero = 'Ciencia Ficción'
+AND anio_publicacion BETWEEN 1990 AND 2020;
+
+-- 16.1 Mostrar el año más reciente de publicación entre todos los libros.
+SELECT MAX(anio_publicacion) AS anio_mas_reciente
+FROM libros;
+
+-- 16.2 Mostrar el año más reciente de publicación para libros del género "Ficción".
+SELECT MAX(anio_publicacion) AS anio_mas_reciente
+FROM libros
+WHERE genero = 'Ficción';
+
+-- 16.3 Mostrar el año más reciente de publicación entre los libros que no tienen autor definido y que fueron publicados después del 2000.
+SELECT MAX(anio_publicacion) AS anio_mas_reciente
+FROM libros
+WHERE autor IS NULL
+AND anio_publicacion > 2000;
+
+-- 17.1 Mostrar el año más antiguo de publicación entre todos los libros.
+SELECT MIN(anio_publicacion) AS anio_mas_antiguo
+FROM libros;
+
+-- 17.2 Mostrar el año más antiguo de publicación para libros con autor definido.
+SELECT MIN(anio_publicacion) AS anio_mas_antiguo
+FROM libros
+WHERE autor IS NOT NULL;
+
+-- 17.3 Mostrar el año más antiguo de publicación para libros de género "Historia" y autor contenga con 'a'.
+SELECT MIN(anio_publicacion) AS anio_mas_antiguo
+FROM libros
+WHERE genero = 'Historia'
+AND autor LIKE '%a%';
+
+-- 18 Mostrar cuántos libros hay por cada género.
+SELECT COUNT(titulo) AS cantidad_libro, genero
+FROM libros
+GROUP BY genero;
+
+-- 18.1 Mostrar el promedio de año de publicación por cada género, solo para libros con autor definido.
+SELECT ROUND(AVG(anio_publicacion)), genero
+FROM libros
+WHERE autor IS NOT NULL
+GROUP BY genero;
+
+-- 18.2 Mostrar cuántos usuarios hay registrados por ciudad.
+SELECT COUNT(id) AS usuarios_registrados, ciudad
+FROM usuarios
+GROUP BY ciudad;
+
+-- 18.3 Mostrar cuántos préstamos hizo cada usuario. (solo los que tienen préstamos (Usá INNER JOIN entre usuarios y prestamos)
+SELECT u.nombre, COUNT(p.id) AS cantidad_prestamos
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+GROUP BY u.id, u.nombre;
+
+-- 18.4 Mostrar cuántos libros hay disponibles y no disponibles por género.
+SELECT genero, disponible, COUNT(*) AS cantidad
+FROM libros
+GROUP BY genero, disponible
+ORDER BY genero, disponible;
+
+-- 18.5 Mostrar el año más reciente de publicación por cada género, sin filtrar nada. Solo queremos ver el año máximo por cada género.
+SELECT MAX(anio_publicacion), genero
+FROM libros
+GROUP BY genero;
+
+-- 18.6 Mostrar el número de libros prestados por título de libro.
+SELECT l.titulo, COUNT(p.id) AS cantidad_prestamos
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+GROUP BY l.titulo;
+
+-- 18.7  Mostrar cuántos préstamos tuvo cada usuario, incluyendo aquellos que no hicieron ninguno. (Usá LEFT JOIN entre usuarios y prestamos)
+SELECT u.nombre, COUNT(p.id) AS cantidad_prestado
+FROM usuarios u
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+GROUP BY u.nombre;
+
+-- 18.8 Mostrar la cantidad de préstamos realizados por mes (usá MONTH(fecha_prestamo) (Agrupá por mes de la fecha de préstamo)
+SELECT COUNT(id) AS cantidad_prestamos, MONTHNAME(fecha_prestamo) AS mes
+FROM prestamos
+GROUP BY  MONTHNAME(fecha_prestamo);
+
+-- 18.9 Mostrar por ciudad de usuario cuántos préstamos se hicieron, aunque sea cero préstamos. Ordená por cantidad descendente.
+SELECT u.ciudad, COUNT(p.id) AS prestamos_por_ciudad
+FROM usuarios u
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+GROUP BY u.ciudad
+ORDER BY COUNT(p.id) DESC;
+
+-- 19 Mostrar por cada ciudad cuántos usuarios hay, pero solo aquellas ciudades donde hay más de 3 usuarios registrados.
+SELECT ciudad, COUNT(id) AS usuarios_por_ciudad
+FROM usuarios
+GROUP BY ciudad
+HAVING usuarios_por_ciudad > 3;
+
+-- 19.1 Mostrar por cada género la cantidad de libros disponibles, pero solo géneros con al menos 4 libros disponibles.
+SELECT genero, COUNT(id) AS cantidad_por_genero
+FROM libros
+GROUP BY genero
+HAVING cantidad_por_genero > 3;
+
+-- 19.2 Mostrar los usuarios que hicieron más de 2 préstamos. Mostrá su nombre y la cantidad de préstamos.
+SELECT u.nombre, COUNT(p.id) AS prestamos
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+GROUP BY u.nombre
+HAVING prestamos > 1;
+
+-- 19.3 Mostrar los títulos de libros que fueron prestados más de una vez.
+SELECT l.titulo, COUNT(p.id) AS cantidad_prestado
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+GROUP BY l.titulo
+HAVING cantidad_prestado > 1;
+
+-- 19.4 Mostrar por cada ciudad de usuario el total de préstamos hechos, pero solo incluir ciudades con más de 10 préstamos.
+SELECT u.ciudad, COUNT(p.id) AS cantidad_prestado
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+GROUP BY u.ciudad
+HAVING cantidad_prestado > 10;
+
+-- 19.5 Mostrar el promedio de año de publicación por género, pero solo géneros donde el promedio sea mayor a 2010.
+SELECT l.genero, ROUND(AVG(l.anio_publicacion)) AS promedio_anio_publicacion
+FROM  libros l
+GROUP BY l.genero
+HAVING promedio_anio_publicacion > 2010;
+
+-- 19.6 Mostrar por cada usuario el total de préstamos realizados, pero solo aquellos cuyo nombre empieza con 'J' y hayan hecho más de 1 préstamo.
+SELECT u.nombre, COUNT(p.id) AS prestamos_realizados
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+WHERE u.nombre LIKE 'J%'
+GROUP BY u.nombre
+HAVING prestamos_realizados > 1;
+
+-- 19.7 Mostrar por cada género cuántos libros tienen autor definido, pero solo incluir géneros con más de 3 libros con autor.
+SELECT genero, COUNT(id) AS libros_con_autor
+FROM libros
+WHERE autor is NOT NULL
+GROUP BY genero
+HAVING COUNT(id) > 3;
+
+-- 19.8 Mostrar por cada mes (usando MONTHNAME) cuántos préstamos se realizaron, pero solo los meses donde se hicieron más de 5 préstamos.
+SELECT MONTHNAME(fecha_prestamo), COUNT(id) AS cantidad_prestamos
+FROM prestamos 
+GROUP BY MONTHNAME(fecha_prestamo)
+HAVING cantidad_prestamos > 5;
+
+-- 19.9 Mostrar cuántos libros hay por cada combinación de género y disponibilidad, pero solo aquellas combinaciones donde hay más de 2 libros.
+SELECT genero, disponible, COUNT(*)
+FROM libros
+GROUP BY genero, disponible
+HAVING COUNT(*) > 2;
+
+-- 20 Mostrar el título del libro más reciente (mayor anio_publicacion). (escalar simple)
+SELECT titulo AS libro_mas_reciente
+FROM libros
+WHERE anio_publicacion = (
+	SELECT MAX(anio_publicacion)
+	FROM libros
+    );
+
+/* 20.1 📅 (IN - lista de valores)
+Listar los títulos de los libros que han sido prestados al usuario con email ana.g@example.com.*/
+SELECT id_libro AS libros_prestados_por_ana
+FROM prestamos
+WHERE id_usuario = (
+	SELECT id
+    FROM usuarios
+    WHERE email = 'ana.g@example.com'
+    );
+    
+-- 20.2 👤 (Escalar con GROUP BY) Mostrar el nombre del usuario que ha hecho más préstamos en total.
+SELECT nombre
+FROM usuarios
+WHERE id = (
+	SELECT id_usuario
+    FROM prestamos
+    GROUP BY id_usuario
+    ORDER BY COUNT(*) DESC
+    LIMIT 1
+    );
+    
+-- 20.3 📚 (Subconsulta en FROM) Mostrar el nombre y cantidad de préstamos de cada usuario que ha hecho más de un préstamo.
+SELECT u.nombre, sub.cantidad_prestamos
+FROM (
+    SELECT id_usuario, COUNT(*) AS cantidad_prestamos
+    FROM prestamos
+    GROUP BY id_usuario
+) AS sub
+JOIN usuarios u ON u.id = sub.id_usuario
+WHERE sub.cantidad_prestamos > 1;
+
+
+-- 20.4 📭 (Subconsulta con NULL - libros sin préstamo)Listar los títulos de los libros que nunca han sido prestados.
+SELECT titulo AS titulos_no_prestado
+FROM libros
+WHERE id IN (
+	SELECT l.id AS id_libros_no_prestados
+    FROM libros l
+    LEFT JOIN prestamos p ON l.id = p.id_libro
+    WHERE p.id_libro IS NULL
+);
+
+-- 20.5  🔁 (Correlacionada con EXISTS) Listar los nombres de los usuarios que tienen al menos un préstamo activo (sin fecha_devolucion).
+SELECT nombre
+FROM usuarios u
+WHERE EXISTS (
+	SELECT 1
+    FROM prestamos p
+    WHERE p.id_usuario = u.id AND fecha_devolucion IS NULL
+);
+    
+-- 20.6 🕰 (Subconsulta con fecha - últimos préstamos)Listar los libros prestados en la fecha más reciente registrada.
+SELECT l.titulo, p.fecha_prestamo AS fecha_mas_reciente 
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+WHERE p.fecha_prestamo = (
+	SELECT MAX(fecha_prestamo)
+    FROM prestamos
+);
+
+
+-- 20.7 📊 (Subconsulta en SELECT – Conteo por libro) Listar todos los títulos de los libros junto con la cantidad de veces que han sido prestados.
+SELECT l.titulo , (
+	SELECT COUNT(p.id)
+    FROM prestamos p
+    WHERE p.id_libro = l.id
+) AS prestamos
+FROM libros l;
+
+-- 20.8 (ANY / ALL – Comparación con todos) Listar los títulos de los libros cuyo año de publicación sea mayor que todos los libros del género "Ciencia Ficción".
+SELECT titulo, anio_publicacion 
+FROM libros
+WHERE anio_publicacion > ALL (
+	SELECT anio_publicacion
+    FROM libros
+    WHERE genero = 'Ciencia Ficción'
+);
+
+-- 20.9 🚫 (Correlacionada con NOT EXISTS – Usuarios sin préstamos) Listar los nombres y correos de los usuarios que nunca han hecho un préstamo.
+SELECT u.nombre, u.email
+FROM usuarios u
+WHERE NOT EXISTS (
+	SELECT 1
+    FROM prestamos p
+    WHERE u.id = p.id_usuario
+);
+	
+CREATE INDEX idx_fecha_prestamo
+ON prestamos (fecha_prestamo);
+    
+    
+EXPLAIN
+SELECT *
+FROM prestamos
+WHERE fecha_prestamo = '2024-05-10';
+
+-- 20.1 Vista básica – libros disponibles. Crea una vista que muestre únicamente los libros que están marcados como disponibles.
+CREATE VIEW vista_libros_disponibles AS
+SELECT id, titulo, autor, genero, anio_publicacion
+FROM libros
+WHERE disponible = 1;
+
+SELECT * FROM vista_libros_disponibles;
+
+-- 20.2  Vista con JOIN – préstamos con datos de usuario y libro
+-- Crea una vista que muestre: nombre del usuario, título del libro, fecha de préstamo y fecha de devolución.
+CREATE VIEW vista_nombre_titulo_fechas AS
+SELECT u.nombre AS nombre_usuario, l.titulo, p.fecha_prestamo, p.fecha_devolucion
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+JOIN libros l ON p.id_libro = l.id;
+
+SELECT * FROM vista_nombre_titulo_fechas;
+
+-- 20.4  Vista con agregación – usuarios con cantidad de préstamos. Crea una vista que muestre cada usuario y cuántos préstamos ha realizado.
+CREATE VIEW vista_usuarios_prestamos AS
+SELECT u.nombre AS usuario, COUNT(p.id) AS prestamos_realizados
+FROM usuarios u
+LEFT JOIN prestamos p ON u.id = p.id_usuario
+GROUP BY u.nombre;
+
+SELECT * FROM vista_usuarios_prestamos;
+
+-- 20.5 Vista filtrada – préstamos de una ciudad y año específico. Crea una vista que muestre todos los préstamos de usuarios de Medellín y libros publicados en 2020.
+CREATE VIEW vista_usuariosMedellin_prestamos2020 AS
+SELECT u.nombre AS usuario_Medellin, l.titulo, l.anio_publicacion
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id
+JOIN libros l ON p.id_libro = l.id
+WHERE l.anio_publicacion > 2020
+	AND u.ciudad = 'Medellín';
+    
+-- 21.1 Usuario lector de libros. Crear un usuario lector1 que solo pueda leer la tabla libros. Verificar que no pueda leer usuarios.
+CREATE USER 'lector1'@'localhost' IDENTIFIED BY '1234';
+
+GRANT SELECT ON biblioteca.libros TO 'lector1'@'localhost';
+
+SHOW GRANTS FOR 'lector1'@'localhost';
+
+-- 21.2 Usuario bibliotecario. Crear un usuario bibliotecario con permisos para insertar en usuarios y consultar cualquier tabla. Verificar que pueda insertar y consultar, pero no actualizar.
+CREATE USER 'bibliotecario'@'localhost' IDENTIFIED BY '1234';
+
+GRANT SELECT ON biblioteca.* TO 'bibliotecario'@'localhost';
+GRANT INSERT ON biblioteca.usuarios TO 'bibliotecario'@'localhost';
+
+-- 21.3 Revocar permisos de inserción. Quitar al usuario bibliotecario el permiso de insertar en usuarios. Verificar que siga pudiendo consultar.
+REVOKE INSERT ON biblioteca.usuarios FROM 'bibliotecario'@'localhost';
+
+-- 21.4 Usuario gestor de préstamos. Crear un usuario gestor_prestamos con permisos para insertar y actualizar en prestamos, y solo consultar en usuarios y libros.
+CREATE USER 'gestor_prestamos'@'localhost' IDENTIFIED BY '1234';
+
+GRANT INSERT, UPDATE ON biblioteca.prestamos TO 'gestor_prestamos'@'localhost';
+GRANT SELECT ON biblioteca.usuarios TO 'gestor_prestamos'@'localhost';
+GRANT SELECT ON biblioteca.libros TO 'gestor_prestamos'@'localhost';
+
+-- 21.5 Eliminar usuario. Borrar el usuario lector1 de la base de datos. Verificar que no pueda conectarse.
+DROP USER 'lector1'@'localhost';
+
+SELECT user, host 
+FROM mysql.user;
+
+-- 22.1 Contar préstamos por usuario sin agrupar filas
+-- Muestra el nombre del usuario, la fecha de cada préstamo y cuántos préstamos tiene en total ese usuario. Pistas: COUNT() OVER (PARTITION BY ...)
+SELECT u.nombre, p.fecha_prestamo,
+	COUNT(*) OVER (PARTITION BY u.nombre) AS prestamos_totales
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id;
+
+-- 22.2 Ranking de libros más prestados en general. Lista el id y título de cada libro junto a la cantidad de préstamos y su posición en el ranking global (1 = más prestado).
+-- Si hay empates, el ranking debe saltar números.
+SELECT l.id, l.titulo,
+	COUNT(*) AS cantidad_prestamos,
+    RANK() OVER(ORDER BY COUNT(*) DESC) AS ranking
+FROM prestamos p
+JOIN libros l ON p.id_libro = l.id
+GROUP BY l.id, l.titulo;
+
+-- 22.3 Ranking de libros más prestados por cada usuario
+-- Muestra id_usuario, id_libro, cantidad de préstamos de ese libro por ese usuario y su ranking dentro de cada usuario (1 = libro que más pidió).
+SELECT id_usuario, id_libro, COUNT(*) AS cantidad_prestamo,
+	DENSE_RANK() OVER(PARTITION BY id_usuario ORDER BY COUNT(*) DESC) AS ranking
+FROM prestamos
+GROUP BY id_usuario, id_libro;
+
+-- 22.4 Fecha del préstamo anterior por usuario. Para cada préstamo, muestra también la fecha de su préstamo anterior de ese mismo usuario (o NULL si no tiene).
+SELECT id_usuario, fecha_prestamo,
+	LAG(fecha_prestamo) OVER(PARTITION BY id_usuario) AS fecha_prestamo_anterior
+FROM prestamos;
+
+-- 22.5 Acumulado de préstamos por usuario. Para cada usuario, lista la fecha de cada préstamo y cuántos préstamos llevaba hasta ese momento (contando el actual).
+SELECT u.nombre, p.fecha_prestamo, 
+	COUNT(*) OVER(PARTITION BY u.nombre ORDER BY fecha_prestamo) AS total_hasta_fecha,
+	COUNT(*) OVER(PARTITION BY u.nombre) AS total_prestamos
+FROM prestamos p
+JOIN usuarios u ON p.id_usuario = u.id;
+
+SELECT id, nombre, email, password FROM usuarios WHERE id = 1;
+

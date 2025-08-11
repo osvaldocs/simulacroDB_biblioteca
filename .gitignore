@@ -1,0 +1,4 @@
+biblioteca-backend/node_modules/
+biblioteca-backend/.env
+biblioteca-frontend/node_modules/   # si usás npm o frameworks ahí también
+

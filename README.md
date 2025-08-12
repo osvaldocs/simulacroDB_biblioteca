@@ -82,3 +82,21 @@ Contacto: [tu email o linkedin]
 ## Licencia
 
 Este proyecto es para fines educativos.
+
+coders@p4m5-0534:~/Documentos/CursoHtmlOpenBootcamp/baseDeDatos/pruebaDesempeñoMod4$ node server.js
+node:internal/modules/cjs/loader:1404
+  throw err;
+  ^
+
+Error: Cannot find module '/home/coders/Documentos/CursoHtmlOpenBootcamp/baseDeDatos/pruebaDesempeñoMod4/server.js'
+    at Function._resolveFilename (node:internal/modules/cjs/loader:1401:15)
+    at defaultResolveImpl (node:internal/modules/cjs/loader:1057:19)
+    at resolveForCJSWithHooks (node:internal/modules/cjs/loader:1062:22)
+    at Function._load (node:internal/modules/cjs/loader:1211:37)
+    at TracingChannel.traceSync (node:diagnostics_channel:322:14)
+    at wrapModuleLoad (node:internal/modules/cjs/loader:235:24)
+    at Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)
+    at node:internal/main/run_main_module:36:49 {
+  code: 'MODULE_NOT_FOUND',
+  requireStack: []
+}

@@ -100,3 +100,144 @@ Error: Cannot find module '/home/coders/Documentos/CursoHtmlOpenBootcamp/baseDeD
   code: 'MODULE_NOT_FOUND',
   requireStack: []
 }
+1ï¸âƒ£ Preparar el entorno
+
+Primero asegÃºrate de tener instalado Node.js en tu PC.
+En la terminal:
+
+node -v
+
+Si no estÃ¡ instalado, lo descargas de https://nodejs.org.
+
+Luego, crea una carpeta para tu proyecto:
+
+mkdir cargar_csv_mysql
+cd cargar_csv_mysql
+
+
+---
+
+2ï¸âƒ£ Instalar dependencias
+
+Vas a necesitar:
+
+mysql2 â†’ para conectarte a MySQL
+
+csv-parser â†’ para leer el CSV
+
+
+En la carpeta del proyecto:
+
+npm init -y
+npm install mysql2 csv-parser
+
+
+---
+
+3ï¸âƒ£ Crear el script cargar.js
+
+Crea un archivo llamado cargar.js y pon este cÃ³digo:
+
+const fs = require('fs');
+const csv = require('csv-parser');
+const mysql = require('mysql2');
+
+// ðŸ”¹ Cambia estos datos por los tuyos:
+const dbConfig = {
+  host: 'localhost',     // Servidor de MySQL
+  user: 'root',          // Usuario de MySQL
+  password: 'TU_PASSWORD', // ContraseÃ±a de MySQL
+  database: 'NOMBRE_DE_TU_BASE', // Base de datos
+};
+
+// ðŸ”¹ Cambia esta ruta por la ubicaciÃ³n de tu CSV
+const csvFilePath = 'C:/Users/TuUsuario/Documents/datos.csv';
+
+// ðŸ”¹ Cambia por el nombre de tu tabla
+const tableName = 'nombre_de_tu_tabla';
+
+// Crear conexiÃ³n a MySQL
+const connection = mysql.createConnection(dbConfig);
+
+connection.connect((err) => {
+  if (err) {
+    console.error('âŒ Error al conectar a MySQL:', err);
+    return;
+  }
+  console.log('âœ… Conectado a MySQL');
+  
+  const results = [];
+
+  fs.createReadStream(csvFilePath)
+    .pipe(csv())
+    .on('data', (row) => {
+      results.push(row);
+    })
+    .on('end', () => {
+      console.log(`ðŸ“„ CSV leÃ­do: ${results.length} filas`);
+
+      // Insertar datos
+      results.forEach((row) => {
+        // ðŸ”¹ Cambia los nombres de columna aquÃ­ segÃºn tu tabla y CSV
+        const query = `
+          INSERT INTO ${tableName} (columna1, columna2, columna3)
+          VALUES (?, ?, ?)
+        `;
+
+        connection.query(query, [
+          row.columna1,
+          row.columna2,
+          row.columna3
+        ], (err) => {
+          if (err) console.error('âŒ Error al insertar fila:', err);
+        });
+      });
+
+      console.log('âœ… Datos insertados en la base de datos');
+      connection.end();
+    });
+});
+
+
+---
+
+4ï¸âƒ£ Cambiar los datos que corresponden
+
+En el script anterior debes modificar:
+
+1. host â†’ si usas MySQL local normalmente es localhost.
+
+
+2. user â†’ tu usuario de MySQL (por defecto root).
+
+
+3. password â†’ tu contraseÃ±a de MySQL.
+
+
+4. database â†’ el nombre de la base de datos que creaste en Workbench.
+
+
+5. csvFilePath â†’ ruta completa de tu archivo CSV.
+
+
+6. tableName â†’ el nombre de la tabla donde vas a insertar.
+
+
+7. Columnas en el INSERT INTO y en row.columnaX â†’ deben coincidir con las columnas de tu tabla y los encabezados de tu CSV.
+
+
+
+
+---
+
+5ï¸âƒ£ Ejecutar el script
+
+En la terminal, estando en la carpeta del proyecto:
+
+node cargar.js
+
+Si todo estÃ¡ bien, vas a ver:
+
+âœ… Conectado a MySQL
+ðŸ“„ CSV leÃ­do: X filas
+âœ… Datos insertados en la base de datos
